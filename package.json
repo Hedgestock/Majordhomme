@@ -1,0 +1,24 @@
+{
+  "name": "majordhomme",
+  "version": "1.0.0",
+  "description": "Bartender bot for discord",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hedgestock/Majordhomme.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hedgestock/Majordhomme/issues"
+  },
+  "homepage": "https://github.com/Hedgestock/Majordhomme#readme",
+  "dependencies": {
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "nodemon": "^2.0.2",
+    "winston": "^3.2.1"
+  }
+}
