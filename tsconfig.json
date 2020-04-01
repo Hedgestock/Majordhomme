@@ -1,0 +1,14 @@
+{ 
+    "compilerOptions": {
+      "outDir": "./dist/",
+      "target": "es5",
+      "lib": ["es7"],
+      "moduleResolution": "node", 
+      "sourceMap": true,
+      // "strict": true,
+      // "alwaysStrict": true,
+      "resolveJsonModule": true,
+    },
+    "include": ["**/*.ts", "**/*.tsx"],
+    "exclude": ["node_modules"]
+  }
