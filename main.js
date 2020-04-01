@@ -1,36 +1,20 @@
-const Discord = require("discord.io");
+const Discord = require("discord.js");
 const auth = require("./auth.json");
+const drinks = require("./drinks.json");
 
-// Initialize Discord Bot
-var bot = new Discord.Client({
-  token: auth.token,
-  autorun: true
-});
-bot.on("ready", function(evt) {
-  console.log("Connected");
-  console.log("Logged in as: ");
-  console.log(bot.username + " - (" + bot.id + ")");
-  bot.sendMessage({
-    to: "694661055489769492",
-    message: "Bonjour, je vais  chercher des boissons dans l'arrière boutique."
-  });
-});
-bot.on("message", function(user, userID, channelID, message, evt) {
-  if (message.includes(`<@!${bot.id}>`)) {
-    switch (message) {
-      default:
+// create a new Discord client
+const client = new Discord.Client();
 
-        bot.sendMessage({
-          to: channelID,
-          message: `Oui <@!${userID}> ? que puis-je faire pour vous ?`
-        });
-        break;
-    }
-  }
+// when the client is ready, run this code
+// this event will only trigger one time after logging in
+client.once("ready", () => {
+  console.log("Ready!");
+  console.log(client);
 });
 
-bot.on("disconnect", function(errMsg, code) {
-  console.error("Disconnected");
-  console.error(errMsg);
-  console.error(code);
+// login to Discord with your app's token
+client.login(auth.token);
+
+client.on("message", message => {
+  console.log(message);
 });
