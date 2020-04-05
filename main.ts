@@ -1,8 +1,7 @@
 import * as Discord from "discord.js";
 import * as natural from "natural";
 import * as auth from "./auth.json";
-import { commands, drinks } from "./behavior";
-import { dialogs } from "./dialogs";
+import { dialogs, drinks } from "./resources";
 import { Wit, MessageResponse } from "node-wit";
 
 let flatDrinks = {};
@@ -212,44 +211,3 @@ function createMenu(menuData, indent, path: string[]) {
   }
   return res;
 }
-
-/// Training
-
-const actionClassifier = new natural.BayesClassifier();
-const itemClassifier = new natural.BayesClassifier();
-
-function trainCommands() {
-  for (const key in commands) {
-    if (commands.hasOwnProperty(key)) {
-      commands[key].map((word) => {
-        actionClassifier.addDocument(
-          natural.PorterStemmerFr.tokenizeAndStem(word),
-          key
-        );
-        actionClassifier.addDocument(word, key);
-      });
-    }
-  }
-  actionClassifier.train();
-}
-
-function trainDrinks() {
-  trainMenuRec(drinks);
-  itemClassifier.train();
-}
-
-function trainMenuRec(menuData) {
-  for (const key in menuData) {
-    if (menuData.hasOwnProperty(key)) {
-      if (typeof menuData[key] == "string") {
-        itemClassifier.addDocument(key, key);
-        itemClassifier.addDocument(menuData[key], key);
-      } else {
-        trainMenuRec(menuData[key]);
-      }
-    }
-  }
-}
-
-trainDrinks();
-trainCommands();
