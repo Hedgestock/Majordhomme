@@ -4,7 +4,7 @@
   "description": "Bartender bot for discord",
   "main": "main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --watch",
     "start": "nodemon ./dist/main.js"
   },
   "repository": {
@@ -19,10 +19,14 @@
   "homepage": "https://github.com/Hedgestock/Majordhomme#readme",
   "dependencies": {
     "discord.js": "^12.1.1",
+    "natural": "^0.6.3",
+    "node-wit": "^5.0.0",
     "nodemon": "^2.0.2"
   },
   "devDependencies": {
+    "@types/natural": "^0.6.3",
     "@types/node": "^13.9.8",
+    "@types/node-wit": "^4.2.2",
     "typescript": "^3.8.3"
   }
 }
