@@ -61,6 +61,9 @@ function handleIntent(message: Discord.Message, apiResult: MessageResponse) {
     case "marry":
       message.channel.send(pickAnswer(action));
       break;
+    case "purr":
+      message.channel.send(pickAnswer(action));
+      break;
     default:
       message.channel.send(
         pickAnswer(action, {
@@ -77,7 +80,6 @@ function handleRPS(message: Discord.Message, apiResult: MessageResponse) {
     let answer = `${
       [rps.pierre, rps.feuille, rps.ciseaux][Math.floor(Math.random() * 3)]
     }\n`;
-    console.log(value, answer, value == answer);
     if (answer.includes(value)) {
       answer += pickAnswer("rps-tie");
     } else if (
@@ -93,22 +95,35 @@ function handleRPS(message: Discord.Message, apiResult: MessageResponse) {
     ) {
       answer += pickAnswer("rps-win");
     }
-    console.log(answer);
     message.channel.send(answer);
   });
 }
 
 function handleServe(message: Discord.Message, apiResult: MessageResponse) {
+  console.log(apiResult.entities.intent);
   if (apiResult.entities.hasOwnProperty("drink")) {
     apiResult.entities.drink.forEach((drink) => {
       serveDrink(message, drink.value);
     }); //FIXME
   } else {
-    pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` });
+    message.channel.send(
+      pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` })
+    );
   }
 }
 
 function serveDrink(message: Discord.Message, drink: string) {
+  console.log(drink);
+  if (!flatDrinks.hasOwnProperty(drink)) {
+    message.channel.send(
+      pickAnswer("serve-not-available", {
+        "%DRINK%": drink,
+        "%USER_AT%": `<@!${message.author.id}>`,
+      })
+    );
+    return;
+  }
+
   // Handle multiple drinks
   if (drink == "Eau") {
     message.react("🚰");

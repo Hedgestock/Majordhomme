@@ -55,7 +55,17 @@ export const drinks = {
 };
 
 export const dialogs = {
+  else: [
+    "Oui %USER_AT% ? que puis-je faire pour vous ?",
+    "Vous désirez ?",
+    "Pour vous servir",
+  ],
+  marry: ["Pas demain _en Ougandais_"],
   menu: ["Voici le menu pour aujourd'hui :\n%MENU%"],
+  purr: ["ronronpetipatapon", "prrrprrprrprr...", "Ron ron."],
+  "rps-loose": ["Oh, on dirait que l'humain surpasse encore la machine."],
+  "rps-tie": ["Une égalité ? Remettons ça."],
+  "rps-win": ["J'ai gagné, ne vous en déplaise."],
   serve: [
     "Voici votre %DRINK%.",
     "Et voilà votre %DRINK% %USER_AT%, c'est envoyé !",
@@ -64,6 +74,12 @@ export const dialogs = {
   ],
   "serve-what": [
     "Excusez-moi %USER_AT%, je n'ai pas compris ce que je devais vous servir.",
+    "Mes capacités de compréhension, pourtant bien supérieure à la moyenne, ne me permettent pas de determiner ce dont vous avez envie.",
+  ],
+  "serve-not-available": [
+    'Je ne pense pas avoir de "%DRINK%" en réserve, Veuillez m\'en pardonner %USER_AT%.',
+    "Si vous tenez vraiment à ce que je vou serve cela, n'hsitez pas à en parler à mon maître.",
+    "Le menu n'affiche pas encore cela, mais parlez en au gérant du server et nous aurons bientôt notre incroyable %DRINK% en stock !",
   ],
   thank: [
     "Je suis là pour vous servir %USER_AT% !",
@@ -71,14 +87,5 @@ export const dialogs = {
     "Si j'avais un cœur, vous me le réchaufferiez.",
     "Étonnant d'être serveur sur un serveur, non ?",
     "1000 mercis ne valent pas un pourboire.",
-  ],
-  marry: ["Pas demain _en Ougandais_"],
-  "rps-win": ["J'ai gagné, ne vous en déplaise."],
-  "rps-loose": ["Oh, on dirait que l'humain surpasse encore la machine."],
-  "rps-tie": ["Une égalité ? Remettons ça."],
-  else: [
-    "Oui %USER_AT% ? que puis-je faire pour vous ?",
-    "Vous désirez ?",
-    "Pour vous servir",
   ],
 };
