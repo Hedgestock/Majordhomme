@@ -62,7 +62,12 @@ export const dialogs = {
   ],
   marry: ["Pas demain _en Ougandais_"],
   menu: ["Voici le menu pour aujourd'hui :\n%MENU%"],
-  purr: ["ronronpetipatapon", "prrrprrprrprr...", "Ron ron."],
+  purr: [
+    "ronronpetipatapon",
+    "prrrprrprrprr...",
+    "Ron ron.",
+    "RrrrRrrrRrrr...",
+  ],
   "rps-loose": ["Oh, on dirait que l'humain surpasse encore la machine."],
   "rps-tie": ["Une égalité ? Remettons ça."],
   "rps-win": ["J'ai gagné, ne vous en déplaise."],

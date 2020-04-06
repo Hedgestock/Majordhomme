@@ -1,8 +1,7 @@
 import * as Discord from "discord.js";
-import * as natural from "natural";
+import { MessageResponse, Wit } from "node-wit";
 import * as auth from "./auth.json";
 import { dialogs, drinks } from "./resources";
-import { Wit, MessageResponse } from "node-wit";
 
 let flatDrinks = {};
 

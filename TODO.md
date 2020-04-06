@@ -1,6 +1,6 @@
-- [ ] Ronrons
+- [x] Ronrons
 - [ ] Handle multiple drinks
-- [ ] Say that @me is available when failed to under
+- [x] Say that @me is available when failed to under
 - [ ] Add more marry option
 - [ ] Redirect to a cleverbot-like when no intent or chatting intent
-- [ ] Fully functionnal rock paper scissors
+- [x] Fully functionnal rock paper scissors
