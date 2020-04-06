@@ -26,6 +26,10 @@ bot.on("message", (message) => {
           handleIntent(message, apiResult);
         } else if (apiResult.entities.hasOwnProperty("rps")) {
           handleRPS(message, apiResult);
+        } else if (apiResult.entities.hasOwnProperty("swear")) {
+          if (message.member) {
+            message.member.kick(pickAnswer("swear"));
+          }
         } else {
           message.channel.send(
             pickAnswer("else", { "%USER_AT%": `<@!${message.author.id}>` })

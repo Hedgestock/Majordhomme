@@ -86,6 +86,7 @@ export const dialogs = {
     "Si vous tenez vraiment à ce que je vou serve cela, n'hsitez pas à en parler à mon maître.",
     "Le menu n'affiche pas encore cela, mais parlez en au gérant du server et nous aurons bientôt notre incroyable %DRINK% en stock !",
   ],
+  swear: ["Un grand pouvoir implique de grandes responsabilités..."],
   thank: [
     "Je suis là pour vous servir %USER_AT% !",
     "Je ne fais que mon devoir.",
