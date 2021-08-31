@@ -1,47 +1,85 @@
 import * as Discord from "discord.js";
-import { MessageResponse, Wit } from "node-wit";
+import * as Wit from "node-wit";
 import * as auth from "./auth.json";
 import { dialogs, drinks } from "./resources";
 
+
 let flatDrinks = {};
 
-const bot = new Discord.Client();
+const bot = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
 
-const client = new Wit({
+const client = new Wit.Wit({
   accessToken: auth.WitToken,
 });
 
 bot.once("ready", () => {
-  console.log("Ready!");
+  console.log(`Logged in as ${bot.user.tag}!`);
+  bot.user.setActivity('🤤', { type: "PLAYING" });
 });
 
 bot.login(auth.DiscordToken);
 
-bot.on("message", (message) => {
-  if (message.cleanContent.includes("@Majordome")) {
+// bot.on('interactionCreate', interaction => {
+// 	console.log(`${interaction.user.tag} in #${interaction.channel} triggered an interaction.`);
+// });
+
+bot.on("messageCreate", (message) => {
+  console.log("message", message.cleanContent, message.cleanContent.includes("@​Majordome"))
+  if (message.cleanContent.includes("@​Majordome")) {
     client
       .message(message.cleanContent, null)
-      .then((apiResult: MessageResponse) => {
-        if (apiResult.entities.hasOwnProperty("intent")) {
-          handleIntent(message, apiResult);
-        } else if (apiResult.entities.hasOwnProperty("rps")) {
-          handleRPS(message, apiResult);
-        } else if (apiResult.entities.hasOwnProperty("swear")) {
-          if (message.member) {
-            message.member.kick(pickAnswer("swear"));
-          }
-        } else {
-          message.channel.send(
-            pickAnswer("else", { "%USER_AT%": `<@!${message.author.id}>` })
-          );
-        }
+      .then((apiResult: Wit.MessageResponse) => {
+        console.log(apiResult)
+        decipher(message, apiResult)
       });
   }
 });
 
 /// Specific behavior
 
-function handleIntent(message: Discord.Message, apiResult: MessageResponse) {
+function decipher(message: Discord.Message, apiResult: Wit.MessageResponse) {
+  if (apiResult.intents.map(i => i.name).includes("serve")) {
+
+
+    if (Object.keys(apiResult.entities).length) {
+      Object.values(apiResult.entities).forEach((entity: any) => {
+        console.log("entity", entity)
+        if (entity[0].value === "eau") {
+          console.log("EEEAAAUUU")
+          message.react("🚰");
+        } else if (entity[0].value === "thé") {
+          message.react("🍵");
+        } else if (entity[0].value === "café") {
+          console.log("KAF2")
+          message.react("☕");
+        } else if (entity[0].value === "chocolat") {
+          message.react("🧉");
+        } else if (entity[0].value === "lait") {
+          message.react("🥛");
+        }
+
+        message.channel
+        .send(
+          pickAnswer("serve", {
+            "%DRINK%": entity[0].value,
+            "%USER_AT%": `<@!${message.author.id}>`,
+          })
+        )
+      });
+    } else {
+      message.channel.send(
+        pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` })
+      );
+      return;
+    }
+  }
+
+
+
+}
+
+
+function handleIntent(message: Discord.Message, apiResult: Wit.MessageResponse) {
   const action = apiResult.entities.intent[0].value;
   switch (action) {
     case "serve":
@@ -77,12 +115,11 @@ function handleIntent(message: Discord.Message, apiResult: MessageResponse) {
   }
 }
 
-function handleRPS(message: Discord.Message, apiResult: MessageResponse) {
+function handleRPS(message: Discord.Message, apiResult: Wit.MessageResponse) {
   const rps = { pierre: "Pierre", feuille: "Feuille", ciseaux: "Ciseaux" };
   apiResult.entities.rps.forEach(({ value }) => {
-    let answer = `${
-      [rps.pierre, rps.feuille, rps.ciseaux][Math.floor(Math.random() * 3)]
-    }\n`;
+    let answer = `${[rps.pierre, rps.feuille, rps.ciseaux][Math.floor(Math.random() * 3)]
+      }\n`;
     if (answer.includes(value)) {
       answer += pickAnswer("rps-tie");
     } else if (
@@ -102,7 +139,7 @@ function handleRPS(message: Discord.Message, apiResult: MessageResponse) {
   });
 }
 
-function handleServe(message: Discord.Message, apiResult: MessageResponse) {
+function handleServe(message: Discord.Message, apiResult: Wit.MessageResponse) {
   console.log(apiResult.entities.intent);
   if (apiResult.entities.hasOwnProperty("drink")) {
     apiResult.entities.drink.forEach((drink) => {
