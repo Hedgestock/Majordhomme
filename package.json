@@ -4,7 +4,8 @@
   "description": "Bartender bot for discord",
   "main": "main.js",
   "scripts": {
-    "build": "tsc --watch",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "start": "nodemon ./dist/main.js"
   },
   "repository": {

@@ -60,6 +60,10 @@ export const dialogs = {
     "Vous désirez ?",
     "Pour vous servir",
   ],
+  greet: [
+    "Bonjour %USER_AT%.",
+    "Je vous souhaite un agréable moment de même !"
+  ],
   marry: ["Pas demain _en Ougandais_"],
   menu: ["Voici le menu pour aujourd'hui :\n%MENU%"],
   purr: [

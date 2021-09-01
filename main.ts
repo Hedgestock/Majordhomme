@@ -39,8 +39,6 @@ bot.on("messageCreate", (message) => {
 
 function decipher(message: Discord.Message, apiResult: Wit.MessageResponse) {
   if (apiResult.intents.map(i => i.name).includes("serve")) {
-
-
     if (Object.keys(apiResult.entities).length) {
       Object.values(apiResult.entities).forEach((entity: any) => {
         console.log("entity", entity)
@@ -57,25 +55,25 @@ function decipher(message: Discord.Message, apiResult: Wit.MessageResponse) {
         } else if (entity[0].value === "lait") {
           message.react("🥛");
         }
-
         message.channel
-        .send(
-          pickAnswer("serve", {
-            "%DRINK%": entity[0].value,
-            "%USER_AT%": `<@!${message.author.id}>`,
-          })
-        )
+          .send(
+            pickAnswer("serve", {
+              "%DRINK%": entity[0].value,
+              "%USER_AT%": `<@!${message.author.id}>`,
+            })
+          )
       });
     } else {
       message.channel.send(
         pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` })
       );
-      return;
     }
   }
 
-
-
+  if (apiResult.intents.map(i => i.name).includes("greet")) {
+    console.log("greeting")
+    message.reply(pickAnswer("greet", { "%USER_AT%": `<@!${message.author.id}>` }))
+  }
 }
 
 
