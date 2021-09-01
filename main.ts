@@ -1,10 +1,9 @@
 import * as Discord from "discord.js";
 import * as Wit from "node-wit";
 import * as auth from "./auth.json";
-import { dialogs, drinks } from "./resources";
+import * as drinks from "./resources/drinks.json";
+import * as dialogs from "./resources/dialogs.json";
 
-
-let flatDrinks = {};
 
 const bot = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
 
@@ -24,196 +23,67 @@ bot.login(auth.DiscordToken);
 // });
 
 bot.on("messageCreate", (message) => {
-  console.log("message", message.cleanContent, message.cleanContent.includes("@​Majordome"))
-  if (message.cleanContent.includes("@​Majordome")) {
+
+  //check if the bot is mentionned or if the message replies to a previous message from the bot.
+  if (message.mentions.users.get(bot.user.id) || (message.mentions.repliedUser && message.mentions.repliedUser.id == bot.user.id)) {
     client
-      .message(message.cleanContent, null)
+      .message(strip(message.cleanContent), null)
       .then((apiResult: Wit.MessageResponse) => {
-        console.log(apiResult)
+        // console.log(apiResult)
         decipher(message, apiResult)
       });
   }
 });
 
+function strip(message: string) {
+  return message.replace("@​Majordome", "");
+}
+
 /// Specific behavior
 
 function decipher(message: Discord.Message, apiResult: Wit.MessageResponse) {
-  if (apiResult.intents.map(i => i.name).includes("serve")) {
-    if (Object.keys(apiResult.entities).length) {
-      Object.values(apiResult.entities).forEach((entity: any) => {
-        console.log("entity", entity)
-        if (entity[0].value === "eau") {
-          console.log("EEEAAAUUU")
-          message.react("🚰");
-        } else if (entity[0].value === "thé") {
-          message.react("🍵");
-        } else if (entity[0].value === "café") {
-          console.log("KAF2")
-          message.react("☕");
-        } else if (entity[0].value === "chocolat") {
-          message.react("🧉");
-        } else if (entity[0].value === "lait") {
-          message.react("🥛");
-        }
-        message.channel
+  apiResult.intents.forEach(intent => {
+    switch (intent.name) {
+      case "serve":
+        barServe(message, apiResult);
+        break;
+      case "greet":
+        message.reply(pickAnswer("greet", { "%USER_AT%": `<@!${message.author.id}>` }))
+        break;
+      default:
+    }
+  })
+
+}
+
+function barServe(message: Discord.Message, apiResult: Wit.MessageResponse) {
+  console.log(apiResult);
+  if (Object.keys(apiResult.entities).length) {
+    Object.values(apiResult.entities).forEach((entity: any) => {
+      if (drinks[entity[0].value]) { // if the drink is known
+        message.react(drinks[entity[0].value]);
+        message.channel // serve and announce it
           .send(
             pickAnswer("serve", {
               "%DRINK%": entity[0].value,
               "%USER_AT%": `<@!${message.author.id}>`,
             })
           )
-      });
-    } else {
-      message.channel.send(
-        pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` })
-      );
-    }
-  }
-
-  if (apiResult.intents.map(i => i.name).includes("greet")) {
-    console.log("greeting")
-    message.reply(pickAnswer("greet", { "%USER_AT%": `<@!${message.author.id}>` }))
-  }
-}
-
-
-function handleIntent(message: Discord.Message, apiResult: Wit.MessageResponse) {
-  const action = apiResult.entities.intent[0].value;
-  switch (action) {
-    case "serve":
-      handleServe(message, apiResult);
-      break;
-    case "menu":
-      message.channel.send(
-        pickAnswer(action, {
-          "%MENU%": menuText,
-        })
-      );
-      break;
-    case "thank":
-      message.channel.send(
-        pickAnswer(action, {
-          "%USER_AT%": `<@!${message.author.id}>`,
-        })
-      );
-      break;
-    case "marry":
-      message.channel.send(pickAnswer(action));
-      break;
-    case "purr":
-      message.channel.send(pickAnswer(action));
-      break;
-    default:
-      message.channel.send(
-        pickAnswer(action, {
-          "%USER_AT%": `<@!${message.author.id}>`,
-        })
-      );
-      break;
-  }
-}
-
-function handleRPS(message: Discord.Message, apiResult: Wit.MessageResponse) {
-  const rps = { pierre: "Pierre", feuille: "Feuille", ciseaux: "Ciseaux" };
-  apiResult.entities.rps.forEach(({ value }) => {
-    let answer = `${[rps.pierre, rps.feuille, rps.ciseaux][Math.floor(Math.random() * 3)]
-      }\n`;
-    if (answer.includes(value)) {
-      answer += pickAnswer("rps-tie");
-    } else if (
-      (value.includes(rps.pierre) && answer.includes(rps.ciseaux)) ||
-      (value.includes(rps.feuille) && answer.includes(rps.pierre)) ||
-      (value.includes(rps.ciseaux) && answer.includes(rps.feuille))
-    ) {
-      answer += pickAnswer("rps-loose");
-    } else if (
-      (value.includes(rps.ciseaux) && answer.includes(rps.pierre)) ||
-      (value.includes(rps.pierre) && answer.includes(rps.feuille)) ||
-      (value.includes(rps.feuille) && answer.includes(rps.ciseaux))
-    ) {
-      answer += pickAnswer("rps-win");
-    }
-    message.channel.send(answer);
-  });
-}
-
-function handleServe(message: Discord.Message, apiResult: Wit.MessageResponse) {
-  console.log(apiResult.entities.intent);
-  if (apiResult.entities.hasOwnProperty("drink")) {
-    apiResult.entities.drink.forEach((drink) => {
-      serveDrink(message, drink.value);
-    }); //FIXME
+      } else { // otherwise announce that it's not in stock
+        message.channel
+          .send(
+            pickAnswer("serve-not-available", {
+              "%DRINK%": entity[0].value,
+              "%USER_AT%": `<@!${message.author.id}>`,
+            })
+          )
+      }
+    });
   } else {
     message.channel.send(
       pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` })
     );
   }
-}
-
-function serveDrink(message: Discord.Message, drink: string) {
-  console.log(drink);
-  if (!flatDrinks.hasOwnProperty(drink)) {
-    message.channel.send(
-      pickAnswer("serve-not-available", {
-        "%DRINK%": drink,
-        "%USER_AT%": `<@!${message.author.id}>`,
-      })
-    );
-    return;
-  }
-
-  // Handle multiple drinks
-  if (drink == "Eau") {
-    message.react("🚰");
-  } else if (drink == "Thé") {
-    message.react("🍵");
-  } else if (drink == "Café") {
-    message.react("☕");
-  } else if (drink == "Chocolat") {
-    message.react("🧉");
-  } else if (drink == "Lait") {
-    message.react("🥛");
-  } else if (drink == "Champagne") {
-    message.react("🥂");
-  } else if (drink == "Saké") {
-    message.react("🍶");
-  } else if (flatDrinks[drink].includes("Soda")) {
-    message.react("🥤");
-  } else if (flatDrinks[drink].includes("Sirop")) {
-    message.react("🍹");
-  } else if (flatDrinks[drink].includes("Virgin")) {
-    message.react("🍹");
-  } else if (flatDrinks[drink].includes("Jus")) {
-    message.react("🧃");
-  } else if (flatDrinks[drink].includes("Bière")) {
-    message.react("🍺");
-  } else if (flatDrinks[drink].includes("Vin")) {
-    message.react("🍷");
-  } else if (flatDrinks[drink].includes("Spiritueux")) {
-    message.react("🥃");
-  } else if (flatDrinks[drink].includes("Cocktail")) {
-    message.react("🍸");
-  }
-  message.channel
-    .send(
-      pickAnswer("serve", {
-        "%DRINK%": drink,
-        "%USER_AT%": `<@!${message.author.id}>`,
-      })
-    )
-    .then((msg) => {
-      if (drink == "Champagne") {
-        msg.react("🍾");
-      }
-      // if (
-      //   message.content.includes("glaçon") ||
-      //   message.content.includes("glacon") ||
-      //   message.content.includes("glace") ||
-      //   message.content.includes("glacé")
-      // ) {
-      //   message.react("🧊");
-      // }
-    });
 }
 
 /// Custom answer
@@ -229,38 +99,4 @@ function fillTemplate(str: string, replacements) {
   return str.replace(/%\w+%/g, function (all) {
     return replacements[all] || all;
   });
-}
-
-/// Menu generation
-
-const menuText = displayMenu();
-
-function displayMenu() {
-  let menu = `**== Menu ==\n__Boisson :__**${createMenu(drinks, "", [])}`;
-  return menu;
-}
-
-function createMenu(menuData, indent, path: string[]) {
-  let res = "";
-  indent += "   ";
-  let count = 0;
-  for (const key in menuData) {
-    if (menuData.hasOwnProperty(key)) {
-      if (typeof menuData[key] == "string") {
-        flatDrinks[key] = [...path];
-        if (count % 5 == 0) {
-          res += `\n${indent}${key}`;
-        } else {
-          res += ` - ${key}`;
-        }
-      } else {
-        res += `\n${indent}${key} :`;
-        path.push(key);
-        res += createMenu(menuData[key], indent, path);
-        path.pop();
-      }
-    }
-    count++;
-  }
-  return res;
 }
