@@ -13,7 +13,7 @@ const client = new Wit.Wit({
 
 bot.once("ready", () => {
   console.log(`Logged in as ${bot.user.tag}!`);
-  bot.user.setActivity('🤤', { type: "PLAYING" });
+  bot.user.setActivity('Je sers les coupons', { type: "PLAYING" });
 });
 
 bot.login(auth.DiscordToken);
@@ -24,36 +24,56 @@ bot.login(auth.DiscordToken);
 
 bot.on("messageCreate", (message) => {
 
-  //check if the bot is mentionned or if the message replies to a previous message from the bot.
-  if (message.mentions.users.get(bot.user.id) || (message.mentions.repliedUser && message.mentions.repliedUser.id == bot.user.id)) {
-    client
-      .message(strip(message.cleanContent), null)
-      .then((apiResult: Wit.MessageResponse) => {
-        // console.log(apiResult)
-        decipher(message, apiResult)
-      });
+  console.log(message)
+
+
+  //check if the bot role is mentioned, if the bot is mentionned or if the message replies to a previous message from the bot
+  if (message.mentions.users.get(bot.user.id) || (message.mentions.repliedUser && message.mentions.repliedUser.id == bot.user.id) || message.mentions.roles.get("881575090616172566")) {
+
+    const text = strip(message.cleanContent)
+    //check if the message is empty
+    if (/\S/.test(text)) {
+      client
+        .message(text, null)
+        .then((apiResult: Wit.MessageResponse) => {
+          console.log(apiResult)
+          decipher(message, apiResult)
+        });
+    } else (
+      message.reply(pickAnswer("else", { "%USER_AT%": `<@!${message.author.id}>` }))
+    )
   }
 });
 
 function strip(message: string) {
-  return message.replace("@​Majordome", "");
+  return message.replace("@Majordome", "").replace("@​Majordome", "");//WTF is this black magic ???
 }
 
 /// Specific behavior
 
 function decipher(message: Discord.Message, apiResult: Wit.MessageResponse) {
+
   apiResult.intents.forEach(intent => {
     switch (intent.name) {
       case "serve":
         barServe(message, apiResult);
         break;
+      case "menu":
+        message.reply(showMenu());
+        break;
       case "greet":
-        message.reply(pickAnswer("greet", { "%USER_AT%": `<@!${message.author.id}>` }))
+        message.reply(pickAnswer("greet", { "%USER_AT%": `<@!${message.author.id}>` }));
         break;
       default:
+        message.reply(pickAnswer("else", { "%USER_AT%": `<@!${message.author.id}>` }));
+        break;
     }
   })
-
+  //if no intent is found, we just give a generic answer
+  if (!apiResult.intents.length) {
+    console.log("else")
+    message.reply(pickAnswer("else", { "%USER_AT%": `<@!${message.author.id}>` }));
+  }
 }
 
 function barServe(message: Discord.Message, apiResult: Wit.MessageResponse) {
@@ -70,20 +90,27 @@ function barServe(message: Discord.Message, apiResult: Wit.MessageResponse) {
             })
           )
       } else { // otherwise announce that it's not in stock
-        message.channel
-          .send(
-            pickAnswer("serve-not-available", {
-              "%DRINK%": entity[0].value,
-              "%USER_AT%": `<@!${message.author.id}>`,
-            })
-          )
+        message.reply(
+          pickAnswer("serve-not-available", {
+            "%DRINK%": entity[0].value,
+            "%USER_AT%": `<@!${message.author.id}>`,
+          })
+        )
       }
     });
   } else {
-    message.channel.send(
+    message.reply(
       pickAnswer("serve-what", { "%USER_AT%": `<@!${message.author.id}>` })
     );
   }
+}
+
+function showMenu() {
+  let menu = "";
+  Object.entries(drinks).forEach(drink => menu += `${drink[1]} - ${drink[0]}\n`)
+  console.log(menu)
+
+  return pickAnswer("menu", { "%MENU%": menu })
 }
 
 /// Custom answer

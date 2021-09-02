@@ -41,7 +41,7 @@
     ],
     "serve-not-available": [
         "Je ne pense pas avoir de \"%DRINK%\" en réserve, Veuillez m'en pardonner %USER_AT%.",
-        "Si vous tenez vraiment à ce que je vou serve cela, n'hésitez pas à en parler à mon maître.",
+        "Si vous tenez vraiment à ce que je vous serve cela, n'hésitez pas à en parler à mon maître.",
         "Le menu n'affiche pas encore cela, mais parlez en au gérant du server et nous aurons bientôt notre incroyable %DRINK% en stock !"
     ],
     "swear": [
